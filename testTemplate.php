@@ -1,4 +1,4 @@
-<?php 
+<?php
 include 'Template.php';
 
 $tpl = new Template();

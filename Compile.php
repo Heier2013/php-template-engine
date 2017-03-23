@@ -1,10 +1,11 @@
-<?php 
+<?php
+
 class Compile
 {
     private $template;      // 待编译的文件
     private $content;       // 需要替换的文本
     private $compile;       // 替换后的文件
-    private $left  = '{';   // 左定界符
+    private $left = '{';   // 左定界符
     private $right = '}';   // 右定界符
     private $value = [];    // 值栈
     private $phpTurn;       // 是否允许使用PHP语法
@@ -14,9 +15,9 @@ class Compile
     public function __construct($template, $compileFile, $config)
     {
         $this->template = $template;
-        $this->compile  = $compileFile;
-        $this->content  = file_get_contents($this->template);
-        
+        $this->compile = $compileFile;
+        $this->content = file_get_contents($this->template);
+
         if ($config['php_turn'] === false) {
             $this->T_P[] = "#<\?(=|php|)(.+?)\?>#is";
             $this->T_R[] = "&lt;?\\1\\2?&gt;";
@@ -50,6 +51,4 @@ class Compile
         $this->content = preg_replace($pattern2, "<?php}?>", $this->content);
         $this->content = preg_replace($pattern3, "<?php echo \$\\1;?>", $this->content);
     }
-
-
 }

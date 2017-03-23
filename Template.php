@@ -1,16 +1,17 @@
 <?php
+
 class Template
 {
     private $arrayConfig = [
-        'suffix'        => '.m',                // 设置模板文件的后缀
-        'templateDir'   => 'template/',         // 设置模板所在的文件夹
-        'compiledir'    => 'cache/',            // 设置编译后存放的目录
-        'cache_htm'     => false,               // 是否需要编译成静态HTML文件
-        'suffix_cache'  => '.htm',              // 设置编译文件的后缀
-        'cache_time'    => 7200,                // 多长时间自动更新
-        'php_turn'      => true,                // 是否支持原生PHP代码
+        'suffix' => '.m',                // 设置模板文件的后缀
+        'templateDir' => 'template/',         // 设置模板所在的文件夹
+        'compiledir' => 'cache/',            // 设置编译后存放的目录
+        'cache_htm' => false,               // 是否需要编译成静态HTML文件
+        'suffix_cache' => '.htm',              // 设置编译文件的后缀
+        'cache_time' => 7200,                // 多长时间自动更新
+        'php_turn' => true,                // 是否支持原生PHP代码
         'cache_control' => 'control.dat',
-        'debug'         => false
+        'debug' => false
     ];
 
     public $file;                       // 模板文件名
@@ -21,7 +22,7 @@ class Template
     public $debug = [];                 // 调试信息
     private $controlData = [];
 
-    public function __construct($arrayConfig=[])
+    public function __construct($arrayConfig = [])
     {
         $this->debug['begin'] = microtime(true);
 
@@ -33,11 +34,11 @@ class Template
         // 路径处理为绝对路径
         $this->getPath();
 
-        if(!is_dir($this->arrayConfig['templateDir'])) {
+        if (!is_dir($this->arrayConfig['templateDir'])) {
             exit("template dir isn't found！");
         }
 
-        if(!is_dir($this->arrayConfig['compiledir'])) {
+        if (!is_dir($this->arrayConfig['compiledir'])) {
             mkdir($this->arrayConfig['compiledir'], 0770, true);
         }
 
@@ -50,7 +51,7 @@ class Template
     public function getPath()
     {
         $this->arrayConfig['templateDir'] = strtr(realpath($this->arrayConfig['templateDir']), '\\', '/') . '/';
-        $this->arrayConfig['compiledir']  = strtr(realpath($this->arrayConfig['compiledir']), '\\', '/') . '/';
+        $this->arrayConfig['compiledir'] = strtr(realpath($this->arrayConfig['compiledir']), '\\', '/') . '/';
     }
 
     /**
@@ -70,7 +71,7 @@ class Template
     }
 
     // 设置配置文件
-    public function setConfig($key, $value=null)
+    public function setConfig($key, $value = null)
     {
         if (is_array($key)) {
             $this->arrayConfig = $key + $this->arrayConfig;
@@ -92,8 +93,8 @@ class Template
     /**
      * 注入单个变量
      *
-     * @param string $key   模板变量名
-     * @param mixed $value  模板变量的值
+     * @param string $key 模板变量名
+     * @param mixed $value 模板变量的值
      *
      * @return void
      */
@@ -105,7 +106,7 @@ class Template
     /**
      * 注入数组变量
      *
-     * @param array $array   模板变量名
+     * @param array $array 模板变量名
      *
      * @return void
      */
@@ -132,7 +133,7 @@ class Template
 
     /**
      * 是否需要重新生成静态文件
-     * @param  $file 模板文件名
+     * @param  string $file 模板文件名
      * @return bool
      */
     public function reCache($file)
@@ -149,10 +150,10 @@ class Template
             }
 
             // 标记缓存是否过期
-            $timeExpiredFlag = (time()-filemtime($cacheFile)) > $this->arrayConfig['cache_time'] ? true : false;
+            $timeExpiredFlag = (time() - filemtime($cacheFile)) > $this->arrayConfig['cache_time'] ? true : false;
 
             // 缓存已过期
-            if(filesize($cacheFile) > 1 && $timeExpiredFlag) {
+            if (filesize($cacheFile) > 1 && $timeExpiredFlag) {
                 $flag = true;
             } else {
                 $flag = false;
@@ -175,15 +176,15 @@ class Template
         }
 
         $compileFile = $this->arrayConfig['compiledir'] . md5($file) . '.php';
-        $cacheFile   = $this->arrayConfig['compiledir'] . md5($file) . '.htm';
+        $cacheFile = $this->arrayConfig['compiledir'] . md5($file) . '.htm';
 
-        if($this->reCache($file) === true) {
+        if ($this->reCache($file) === true) {
             // 标记未使用静态缓存
             $this->debug['cached'] = 'false';
 
             $this->compileTool = new Compile($this->path(), $compileFile, $this->arrayConfig);
 
-            if($this->needCache()) {
+            if ($this->needCache()) {
                 ob_start();
             }
 
@@ -201,7 +202,7 @@ class Template
                 include $compileFile;
             }
 
-            if($this->needCache()) {
+            if ($this->needCache()) {
                 $message = ob_get_contents();
                 file_put_contents($cacheFile, $message);
             } else {
@@ -212,13 +213,13 @@ class Template
 
         $this->debug['spend'] = microtime(true) - $this->debug['begin'];
         $this->debug['count'] = count($this->value);
-        
+
         $this->debugInfo();
     }
 
     public function debugInfo()
     {
-        if($this->arrayConfig['debug'] === true) {
+        if ($this->arrayConfig['debug'] === true) {
             echo PHP_EOL . '------debug info------' . PHP_EOL;
             echo '程序运行日期: ' . date('Y-m-d H:i:s') . PHP_EOL;
             echo '模板解析耗时：' . $this->debug['spend'] . '秒' . PHP_EOL;
@@ -230,14 +231,13 @@ class Template
 
     /**
      * 清理缓存的HTML文件
-     * @param  [type] $path [description]
-     * @return [type]       [description]
+     * @param  string $path [description]
      */
-    public function clean($path=null)
+    public function clean($path = null)
     {
         $this->path();
 
-        if($path == null) {
+        if ($path == null) {
             $path = $this->arrayConfig['compiledir'];
             var_dump($path . '*' . $this->arrayConfig['suffix_cache']);
             // 寻找与模式匹配的文件路径
@@ -250,7 +250,5 @@ class Template
         foreach ((array)$path as $value) {
             @unlink($value);
         }
-
-        return true;
     }
 }
